@@ -3,23 +3,61 @@ In this project, you'll set up a state machine using event-driven programming to
 
 The python code you write is similar to how the drone would be controlled from a ground station computer or an onboard flight computer. Since communication with the drone is done using MAVLink, you will be able to use your code to control an PX4 quadcopter autopilot with very little modification!
 
-## Step 1: Download the Simulator
-If you haven't already, download the version of the simulator that's appropriate for your operating system [from this repository](https://github.com/udacity/FCND-Simulator-Releases/releases).
-
-## Step 2: Set up your Python Environment
-If you haven't already, set up your Python environment and get all the relevant packages installed using Anaconda following instructions in [this repository](https://github.com/udacity/FCND-Term1-Starter-Kit)
-
-## Step 3: Clone this Repository
-```sh
-git clone https://github.com/udacity/FCND-Backyard-Flyer
-```
-
 ## Task
+
 The required task is to command the drone to fly a 10 meter box at a 3 meter altitude. You'll fly this path in two ways: first using manual control and then under autonomous control.
 
 Manual control of the drone is done using the instructions found with the simulator.
 
 Autonomous control will be done using an event-driven state machine. First, you will need to fill in the appropriate callbacks. Each callback will check against transition criteria dependent on the current state. If the transition criteria are met, it will transition to the next state and pass along any required commands to the drone.
+
+To view the video on Youtube, click on the image below:
+
+[![IMAGE ALT TEXT HERE](./video/run_1.gif)](https://youtu.be/44cdp6eYPgs)
+
+
+
+## How to run
+
+### Step 1: Download the Simulator
+
+If you haven't already, download the version of the simulator that's appropriate for your operating system [from this repository](https://github.com/udacity/FCND-Simulator-Releases/releases).
+
+### Step 2: Set up your Python Environment
+If you haven't already, set up your Python environment and get all the relevant packages installed using Anaconda following instructions in [this repository](https://github.com/udacity/FCND-Term1-Starter-Kit)
+
+### Setup Instructions (abbreviated)
+
+Read through the instructions below. If these commands look familiar to you, then you should use these VERY abbreviated instructions to get yourself set up.
+
+1. [download miniconda](https://conda.io/miniconda.html) and then install by opening the file/app that you download.
+2. `git clone https://github.com/udacity/FCND-Term1-Starter-Kit.git` to clone the starter kit and then `cd FCND-Term1-Starter-Kit` into that directory. If you have a windows machine, you must rename `meta_windows_patch.yml` to `meta.yml` as well.
+3. `conda env create -f environment.yml` to create the miniconda environment: *this took me 20 minutes to run due to the large number of installs required.*
+4. `source activate fcnd` to activate the environment (you'll need to do this whenever you want to work in this environment).
+
+### Step 3: Clone this Repository
+
+```sh
+git clone https://github.com/shengchen-liu/FCND-Backyard-Flyer
+```
+
+### Step 4: Open the Simulator
+
+![image-20200618102646069](README.assets/image-20200618102646069.png)
+
+### Step 5: Start the Server for Visdom
+
+```
+python -m visdom.server
+```
+
+Open a browser to monitor the live data, the default address is  http://localhost:8097
+
+### Step 6: Run the File
+
+```
+python backyar_flyer.py
+```
 
 ## Drone API
 
@@ -36,6 +74,78 @@ The `Drone` class contains the following attributes that you may find useful for
 
 For a detailed list of all of the attributes of the `Drone` class [check out the UdaciDrone API documentation](https://udacity.github.io/udacidrone/).
 
+## Communicating with the Drone using the API
+
+In order to use the Drone API to communicate with the simulator. You first need to open the simulator.
+
+Next, you will need to activate the environment via your terminal using the following command
+
+```pyth
+source activate fcnd
+```
+
+Now the drone can be manually started from a python / ipython shell! From the terminal start ipython:
+
+```
+ipython
+```
+
+Now you can initialize the drone with the following commands:
+
+```
+from udacidrone import Drone
+from udacidrone.connection import MavlinkConnection
+conn = MavlinkConnection('tcp:127.0.0.1:5760', threaded=True)
+drone = Drone(conn)
+drone.start()
+```
+
+Now take control of the drone and arm the rotors. Briefly pause in between executing code snippets as running them in immediate succession can cause strange drone behavior within the simulator.
+
+```
+drone.take_control()
+drone.arm()
+```
+
+Now set the drone's "home position"
+
+```
+drone.set_home_position(drone.global_position[0], 
+                        drone.global_position[1], 
+                        drone.global_position[2])
+```
+
+And now you can take off (to a height of 3 meters)!
+
+```
+drone.takeoff(3)
+```
+
+Once you're in the air, you can fly around by commanding the drone to waypoints.
+
+```
+drone.cmd_position(5,0,3,0)
+```
+
+
+
+### Drone Commands
+
+There are many commands you can issue to the drone through this API. Some of them include...
+
+`start()`: Start receiving messages from the drone. If the connection is not threaded, this will block the code
+
+`stop()`: Terminate the connection with the drone and close the telemetry log
+
+`take_control()`: Set the command mode of the quad to guided.
+
+`release_control()`: Set the command mode of the quad to manual.
+
+`arm()`: Arms the motors of the quad, the rotors begin spinning. The drone cannot takeoff until armed.
+
+`disarm()`: Disarms the motors of the quad. The quadcopter cannot be disarmed in the air.
+
+`cmd_position(north, east, down, heading)`: Command the vehicle to travel to the local position (north, east, down). Also commands the quad to maintain a specified heading.
 
 ### Registering Callbacks
 
@@ -207,13 +317,22 @@ def global_to_local(global_position, global_home):
 
 
 
+## So what is Event Driven Programming?
+
+We'll be talking about this more in the sections that follow, but I'd like to give a quick summary here:
+
+> *Event-driven programming is a programming paradigm in which the flow of execution is determined by external **events** rather than a pre-defined sequence of steps.*
+
+When would you use EDP?
+
+A drone is one example. But EDP is also the dominant paradigm used in: graphical user interfaces, where programmers specify how the application should respond to user actions (events).
+
+You might also use event-driven programming when writing a chatbot. And the example you'll see in the next section uses an `EventDrivenChatBot` class to demonstrate some of the key concepts in EDP
+
+
+
 ## Submission Requirements
 
 * Filled in backyard_flyer.py
 
 
-
-# FCND-Backyard-Flyer
-# FCND-Backyard-Flyer
-# FCND-Backyard-Flyer
-# FCND-Backyard-Flyer

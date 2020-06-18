@@ -258,7 +258,7 @@ if __name__ == "__main__":
     parser.add_argument('--host', type=str, default='127.0.0.1', help="host address, i.e. '127.0.0.1'")
     args = parser.parse_args()
 
-    # conn = MavlinkConnection('tcp:127.0.0.1:5760', threaded=True)
+    # conn = MavlinkConnection('tcp:127.0.0.1:5760', threaded=False, PX4=False)
     conn = MavlinkConnection('tcp:{0}:{1}'.format(args.host, args.port), threaded=False, PX4=False)
     #conn = WebSocketConnection('ws://{0}:{1}'.format(args.host, args.port))
     drone = BackyardFlyer(conn)
